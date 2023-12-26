@@ -19,8 +19,9 @@ export const validatePassword = async ({
 }: ValidatePasswordType) =>
   (await generatePassword(enteredPassword, salt)) === savedPassword;
 
-export const generateSignature = (userIdentifier: UserIdentifierType) =>
-  sign(userIdentifier, JWT_AUTH_SECRET, { expiresIn: '1d' });
+export function generateSignature<T>(userIdentifier: T) {
+  sign(userIdentifier as T & object, JWT_AUTH_SECRET, { expiresIn: '1d' });
+}
 
 export const validateSignature = async (req: Request) => {
   const signature = req.get('Authorization');

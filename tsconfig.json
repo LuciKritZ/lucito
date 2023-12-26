@@ -1,21 +1,24 @@
 {
   "compilerOptions": {
-    "target": "es2016",
+    "target": "ES2016",
     "module": "commonjs",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "skipLibCheck": true,
+    // For enabling decorators
+    "strictPropertyInitialization": false,
+    "experimentalDecorators": true,
     "outDir": "./.dist",
     "paths": {
       "@/*": [
         "./*"
-      ]
+      ],
     },
     "typeRoots": [
       "./node_modules/@types",
       "types"
-    ]
+    ],
   },
   "exclude": [
     "node_modules"

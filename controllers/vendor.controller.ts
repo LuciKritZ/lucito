@@ -30,7 +30,11 @@ export const loginVendor = async (
 
     if (isPasswordCorrect) {
       const { email, _id, phone }: UserIdentifierType = existingVendor;
-      const signature = generateSignature({ email, _id, phone });
+      const signature = generateSignature<UserIdentifierType>({
+        email,
+        _id,
+        phone,
+      });
       return res.json({ token: signature });
     } else {
       return res.json({ message: 'Invalid password entered.' });

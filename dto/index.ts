@@ -1,3 +1,4 @@
-export * from './vendor.dto';
-export * from './auth.dto';
-export * from './food-item.dto';
+export type * from './vendor.dto';
+export type * from './auth.dto';
+export type * from './food-item.dto';
+export * from './customer.dto';

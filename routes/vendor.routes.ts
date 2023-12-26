@@ -30,8 +30,4 @@ router.patch('/serviceable', updateVendorService);
 router.post('/food-item', imagesMulter, addFoodItem);
 router.get('/food-items', getFoodItems);
 
-router.get('/', (req: Request, res: Response, next: NextFunction) => {
-  res.json({ message: 'Hello from vendor router' });
-});
-
 export { router as vendorRouter };
