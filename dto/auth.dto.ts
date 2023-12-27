@@ -4,4 +4,5 @@ export type AuthPayload = {
   _id: ObjectId;
   email: string;
   phone: string;
+  verified?: boolean;
 };

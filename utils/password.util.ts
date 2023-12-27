@@ -2,7 +2,6 @@ import { genSalt, hash } from 'bcrypt';
 
 import { ValidatePasswordType } from './types.util';
 import type { AuthPayload } from '@/dto';
-import type { UserIdentifierType } from '@/controllers';
 import { sign, verify } from 'jsonwebtoken';
 import { JWT_AUTH_SECRET } from '@/config';
 import { Request } from 'express';
@@ -20,7 +19,9 @@ export const validatePassword = async ({
   (await generatePassword(enteredPassword, salt)) === savedPassword;
 
 export function generateSignature<T>(userIdentifier: T) {
-  sign(userIdentifier as T & object, JWT_AUTH_SECRET, { expiresIn: '1d' });
+  return sign(userIdentifier as T & object, JWT_AUTH_SECRET, {
+    expiresIn: '1d',
+  });
 }
 
 export const validateSignature = async (req: Request) => {

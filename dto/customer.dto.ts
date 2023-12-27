@@ -10,8 +10,16 @@ export class CreateCustomerInput {
   @IsEmail()
   email: string;
 
-  @Length(7, 12)
+  @Length(7, 13)
   phone: string;
+
+  @Length(6, 12)
+  password: string;
+}
+
+export class LoginCustomerInput {
+  @IsEmail()
+  email: string;
 
   @Length(6, 12)
   password: string;

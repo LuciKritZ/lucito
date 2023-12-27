@@ -6,6 +6,7 @@ import {
   updateCustomerProfile,
   verifyCustomer,
 } from '@/controllers';
+import { authenticate } from '@/middlewares';
 import { Router } from 'express';
 
 const router = Router();
@@ -17,6 +18,7 @@ router.post('/sign-up', signUpCustomer);
 router.post('/login', logInCustomer);
 
 // Protected routes
+router.use(authenticate);
 
 // Verify customer account
 router.post('/verify', verifyCustomer);
