@@ -1,3 +1,3 @@
-export const TWILIO_ACCOUNT_SID = 'AC8573e646c3219780b71ed057137743ef';
-export const TWILIO_AUTH_TOKEN = '07ada722af15080bb0e5b913a260831b';
-export const TWILIO_VERIFY_SID = 'VAe879f27f91111ce5d2cf9c581cccd0ec';
+export const TWILIO_ACCOUNT_SID = '';
+export const TWILIO_AUTH_TOKEN = '';
+export const TWILIO_VERIFY_SID = '';
