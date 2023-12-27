@@ -11,10 +11,8 @@ import { Router } from 'express';
 
 const router = Router();
 
-// Signup/ create customer
+// Public
 router.post('/sign-up', signUpCustomer);
-
-// Login
 router.post('/login', logInCustomer);
 
 // Protected routes
@@ -23,7 +21,7 @@ router.use(authenticate);
 // Verify customer account
 router.post('/verify', verifyCustomer);
 
-// OTP/Requesting OTP
+// Requesting OTP
 router.post('/otp', requestOtpForCustomer);
 
 // Profile

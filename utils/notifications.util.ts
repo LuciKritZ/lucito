@@ -1,10 +1,10 @@
+import { TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN } from '@/config';
+
 // Convert to milliseconds
 const convertToMilliSeconds = (expiryTimeInMin: number): number =>
   expiryTimeInMin * 60 * 1000;
 
 // Email
-
-import { TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN } from '@/config';
 
 // Notifications
 
@@ -21,13 +21,18 @@ export const generateOTP = () => {
 export const onRequestOTP = async (otp: number, phoneNumber: string) => {
   const accountSid = TWILIO_ACCOUNT_SID;
   const authToken = TWILIO_AUTH_TOKEN;
-  const client = require('twilio')(accountSid, authToken);
 
-  await client.messages.create({
-    from: '+19735473166',
-    to: phoneNumber,
-    body: `Your OTP from Lucito is ${otp}.`,
-  });
+  try {
+    const client = require('twilio')(accountSid, authToken);
+
+    await client.messages.create({
+      from: '+19735473166',
+      to: phoneNumber,
+      body: `Your OTP from Lucito is ${otp}.`,
+    });
+  } catch (error) {
+    console.error(`Error in requesting OTP: ${error}`);
+  }
 };
 
 // Payment notifications or emails

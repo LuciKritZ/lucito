@@ -1,6 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
 import { plainToClass } from 'class-transformer';
-import { AuthPayload, CreateCustomerInput, LoginCustomerInput } from '@/dto';
+import {
+  AuthPayload,
+  CreateCustomerInput,
+  LoginCustomerInput,
+  UpdateCustomerProfileInput,
+} from '@/dto';
 import { validate } from 'class-validator';
 import {
   generateOTP,
@@ -87,7 +92,7 @@ export const signUpCustomer = async (
     });
 
     // 3. Send the result to client
-    res.status(201).json({
+    return res.status(201).json({
       signature,
       verified: customer.verified,
       email: customer.email,
@@ -107,7 +112,7 @@ export const logInCustomer = async (
   });
 
   if (loginErrors.length) {
-    return res.send(400).json(loginErrors);
+    return res.status(400).json(loginErrors);
   }
 
   const { email, password: enteredPassword } = loginInputs;
@@ -202,22 +207,22 @@ export const requestOtpForCustomer = async (
   res: Response,
   next: NextFunction
 ) => {
-  const customer = req.user;
+  const user = req.user;
 
-  if (customer) {
-    const user = await findCustomer({ _id: customer._id });
+  if (user) {
+    const customer = await findCustomer({ _id: user._id });
 
-    if (user) {
+    if (customer) {
       const { otp, expiry } = generateOTP();
 
-      user.otp = otp;
-      user.otpExpiry = expiry;
+      customer.otp = otp;
+      customer.otpExpiry = expiry;
 
-      await user.save();
+      await customer.save();
 
-      await onRequestOTP(otp, user.phone);
+      await onRequestOTP(otp, customer.phone);
 
-      res
+      return res
         .status(200)
         .json({ message: 'OTP sent to your registered phone number!' });
     }
@@ -230,10 +235,54 @@ export const getCustomerProfile = async (
   req: Request,
   res: Response,
   next: NextFunction
-) => {};
+) => {
+  const customer = req.user;
+
+  if (customer) {
+    const profile = await findCustomer({ _id: customer._id });
+
+    if (profile) {
+      return res.status(200).json(profile);
+    }
+    return res.status(400).json({ message: 'Customer not found' });
+  }
+
+  return res.status(400).json({ message: 'Please try again.' });
+};
 
 export const updateCustomerProfile = async (
   req: Request,
   res: Response,
   next: NextFunction
-) => {};
+) => {
+  const customer = req.user;
+
+  if (customer) {
+    const profileInputs = plainToClass(UpdateCustomerProfileInput, req.body);
+
+    const profileInputErrors = await validate(profileInputs, {
+      validationError: { target: false },
+    });
+
+    if (profileInputErrors.length > 0) {
+      return res.status(400).json(profileInputErrors);
+    }
+
+    const profile = await findCustomer({ _id: customer._id });
+
+    if (profile) {
+      const { firstName, lastName, address } = profileInputs;
+
+      profile.firstName = firstName;
+      profile.lastName = lastName;
+      profile.address = address;
+
+      await profile.save();
+      return res.status(200).json(profile);
+    }
+
+    return res.status(400).json({ message: 'Customer not found' });
+  }
+
+  return res.status(400).json({ message: 'Please try again.' });
+};

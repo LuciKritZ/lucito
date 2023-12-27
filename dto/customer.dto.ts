@@ -25,6 +25,17 @@ export class LoginCustomerInput {
   password: string;
 }
 
+export class UpdateCustomerProfileInput {
+  @Length(3, 16)
+  firstName: string;
+
+  @Length(3, 16)
+  lastName: string;
+
+  @Length(6, 16)
+  address: string;
+}
+
 export interface CustomerAuthenticationPayload {
   _id: ObjectId;
   email: string;
