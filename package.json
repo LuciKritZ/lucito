@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "ts-node-dev -r tsconfig-paths/register --files src/index.ts",
-    "start": "node dist/index.js",
+    "dev": "NODE_ENV=development ts-node-dev -r tsconfig-paths/register --files src/index.ts",
+    "start": "NODE_ENV=production node dist/index.js",
     "build": "npx tsc && npx tsc-alias",
     "postinstall": "npm run build"
   },
@@ -17,6 +17,7 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
     "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.0.3",

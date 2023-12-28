@@ -1,7 +1,10 @@
 import express from 'express';
 import { applicationService, databaseService } from '@/services';
+import { config as dotenvConfig } from 'dotenv';
 
-const PORT = 8080;
+dotenvConfig();
+
+const PORT: number = Number(process.env.PORT) || 8080;
 
 const startServer = async () => {
   const app = express();

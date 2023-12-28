@@ -3,8 +3,9 @@ import { genSalt, hash } from 'bcrypt';
 import { ValidatePasswordType } from './types.util';
 import type { AuthPayload } from '@/dto';
 import { sign, verify } from 'jsonwebtoken';
-import { JWT_AUTH_SECRET } from '@/config';
 import { Request } from 'express';
+
+export const JWT_AUTH_SECRET = process.env.JWT_AUTH_SECRET;
 
 export const generateSalt = async () => await genSalt();
 
