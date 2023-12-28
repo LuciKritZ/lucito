@@ -1,8 +1,4 @@
-import {
-  json as bodyParserJson,
-  urlencoded as bodyParserUrlEncoded,
-} from 'body-parser';
-import { type Application, static as static_ } from 'express';
+import { type Application, static as static_, json, urlencoded } from 'express';
 import { join as joinPath } from 'path';
 
 import {
@@ -13,8 +9,8 @@ import {
 } from '@/routes';
 
 export default async (app: Application) => {
-  app.use(bodyParserJson());
-  app.use(bodyParserUrlEncoded({ extended: true }));
+  app.use(json());
+  app.use(urlencoded({ extended: true }));
 
   // For storing images on the disk
   app.use('/images', static_(joinPath(__dirname, 'images')));
