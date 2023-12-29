@@ -1,9 +1,5 @@
-export const TWILIO_ACCOUNT_SID = process.env.TWILIO_ACCOUNT_SID;
-export const TWILIO_AUTH_TOKEN = process.env.TWILIO_AUTH_TOKEN;
-
-// Convert to milliseconds
-const convertToMilliSeconds = (expiryTimeInMin: number): number =>
-  expiryTimeInMin * 60 * 1000;
+import { getEnvVariable } from '@/config';
+import { convertToMilliSeconds, getRandomOTP } from './numbers.util';
 
 // Email
 
@@ -11,7 +7,7 @@ const convertToMilliSeconds = (expiryTimeInMin: number): number =>
 
 // OTP
 export const generateOTP = () => {
-  const otp = Math.floor(1_00_000 + Math.random() * 9_00_000);
+  const otp = getRandomOTP();
   let expiry = new Date();
 
   expiry.setTime(new Date().getTime() + convertToMilliSeconds(5));
@@ -20,8 +16,8 @@ export const generateOTP = () => {
 };
 
 export const onRequestOTP = async (otp: number, phoneNumber: string) => {
-  const accountSid = TWILIO_ACCOUNT_SID;
-  const authToken = TWILIO_AUTH_TOKEN;
+  const accountSid = getEnvVariable('TWILIO_ACCOUNT_SID');
+  const authToken = getEnvVariable('TWILIO_AUTH_TOKEN');
 
   try {
     const client = require('twilio')(accountSid, authToken);

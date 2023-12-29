@@ -1,5 +1,8 @@
 import {
+  createOrder,
+  getAllOrders,
   getCustomerProfile,
+  getOrderById,
   logInCustomer,
   requestOtpForCustomer,
   signUpCustomer,
@@ -27,5 +30,14 @@ router.post('/otp', requestOtpForCustomer);
 // Profile
 router.get('/profile', getCustomerProfile);
 router.patch('/profile', updateCustomerProfile);
+
+// Cart
+
+// Payment
+
+// Order handing
+router.post('/create-order', createOrder);
+router.get('/orders', getAllOrders);
+router.get('/order/:id', getOrderById);
 
 export { router as customerRouter };

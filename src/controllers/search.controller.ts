@@ -1,4 +1,4 @@
-import { FoodItem, FoodItemDocument, Vendor } from '@/models';
+import { FoodItem, Vendor } from '@/models';
 import { Request, Response, NextFunction } from 'express';
 
 export const checkFoodAvailability = async (

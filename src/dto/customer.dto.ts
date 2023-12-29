@@ -41,3 +41,8 @@ export interface CustomerAuthenticationPayload {
   email: string;
   verified: boolean;
 }
+
+export interface CustomerOrderInput {
+  _id: string;
+  unit: number;
+}

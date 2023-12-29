@@ -2,7 +2,7 @@ import multer, { diskStorage } from 'multer';
 
 export const imageStorage = diskStorage({
   destination: function (_req, _file, cb) {
-    cb(null, 'images');
+    cb(null, 'src/images');
   },
   filename: function (_req, file, cb) {
     cb(null, `${new Date().toISOString()}_${file.originalname}`);

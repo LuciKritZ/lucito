@@ -3,6 +3,7 @@ import { plainToClass } from 'class-transformer';
 import {
   AuthPayload,
   CreateCustomerInput,
+  CustomerOrderInput,
   LoginCustomerInput,
   UpdateCustomerProfileInput,
 } from '@/dto';
@@ -15,8 +16,10 @@ import {
   onRequestOTP,
   validatePassword,
 } from '@/utils';
-import { Customer } from '@/models';
+import { Customer, FoodItem } from '@/models';
 import { UserIdentifierType } from './types.controller';
+import { getRandomObjectId } from '@/utils/numbers.util';
+import { SchemaTypes } from 'mongoose';
 
 export const findCustomer = async ({
   _id,
@@ -286,3 +289,61 @@ export const updateCustomerProfile = async (
 
   return res.status(400).json({ message: 'Please try again.' });
 };
+
+export const createOrder = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  // Grab current login customer
+  const customer = req.user;
+
+  if (customer) {
+    // Create an order ID
+    const orderId = getRandomObjectId();
+
+    const profile = await findCustomer({ _id: customer._id });
+
+    // Grab order items from request [{ id: XX, unit: XX }]
+    const cart = <[CustomerOrderInput]>req.body;
+
+    let cartItems = Array();
+
+    let netAmount = 0.0;
+
+    // Calculate order amount
+    // const food = await FoodItem.find()
+    //   .where('_id')
+    //   .in(cart.map((item) => item._id))
+    //   .exec();
+
+    const food = await FoodItem.aggregate([
+      {
+        $match: {
+          _id: {
+            $in: cart.map((item) => new SchemaTypes.ObjectId(item._id)),
+          },
+        },
+      },
+    ]);
+
+    console.log(food);
+    // TODO: Continue from here
+
+    // Create order with item descriptions
+
+    // Finally update orders to user account
+  }
+};
+
+export const getAllOrders = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {};
+
+export const getOrderById = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {};

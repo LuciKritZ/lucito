@@ -13,6 +13,7 @@
       "ES6",
       "ESNext.AsyncIterable"
     ],
+    "noEmit": false,
     "sourceMap": true,
     "moduleResolution": "Node",
     "forceConsistentCasingInFileNames": true,
