@@ -16,10 +16,9 @@ import {
   onRequestOTP,
   validatePassword,
 } from '@/utils';
-import { Customer, FoodItem } from '@/models';
+import { Customer, FoodItem, Order } from '@/models';
 import { UserIdentifierType } from './types.controller';
 import { getRandomObjectId } from '@/utils/numbers.util';
-import { SchemaTypes } from 'mongoose';
 
 export const findCustomer = async ({
   _id,
@@ -80,6 +79,7 @@ export const signUpCustomer = async (
     lat: 0,
     lng: 0,
     phone,
+    orders: [],
   });
 
   if (customer) {
@@ -304,46 +304,96 @@ export const createOrder = async (
 
     const profile = await findCustomer({ _id: customer._id });
 
-    // Grab order items from request [{ id: XX, unit: XX }]
-    const cart = <[CustomerOrderInput]>req.body;
+    if (profile) {
+      // Grab order items from request [{ id: XX, unit: XX }]
+      const cart = <[CustomerOrderInput]>req.body;
 
-    let cartItems = Array();
+      let cartItems = Array();
 
-    let netAmount = 0.0;
+      let totalAmount = 0.0;
 
-    // Calculate order amount
-    // const food = await FoodItem.find()
-    //   .where('_id')
-    //   .in(cart.map((item) => item._id))
-    //   .exec();
+      // Calculate order amount
+      const foodItems = await FoodItem.find()
+        .where('_id')
+        .in(cart.map((item) => item._id))
+        .exec();
 
-    const food = await FoodItem.aggregate([
-      {
-        $match: {
-          _id: {
-            $in: cart.map((item) => new SchemaTypes.ObjectId(item._id)),
-          },
-        },
-      },
-    ]);
+      foodItems.forEach((foodItem) => {
+        cart.forEach(({ _id, unit }) => {
+          if (String(foodItem._id) === _id) {
+            totalAmount += foodItem.price * unit;
+            cartItems.push({ foodItem, unit });
+          }
+        });
+      });
 
-    console.log(food);
-    // TODO: Continue from here
+      // Create order with item descriptions
+      if (cartItems) {
+        const orderPlaced = await Order.create({
+          orderId,
+          items: cartItems,
+          totalAmount,
+          orderDate: new Date(),
+          paymentMode: 'COD',
+          paymentResponse: '',
+          orderStatus: 'Waiting',
+        });
 
-    // Create order with item descriptions
+        // Finally update orders to user account
+        if (orderPlaced) {
+          profile.orders.push(orderPlaced);
+          await profile.save();
 
-    // Finally update orders to user account
+          return res.status(200).json(orderPlaced);
+        }
+        return res
+          .status(400)
+          .json({ message: 'Unable to place an order at the moment' });
+      }
+      return res
+        .status(400)
+        .json({ message: 'Unexpected error while placing an order' });
+    }
+    return res.status(403).json({ message: 'Unauthorized' });
   }
+  return res.status(403).json({ message: 'Unauthorized' });
 };
 
 export const getAllOrders = async (
   req: Request,
   res: Response,
   next: NextFunction
-) => {};
+) => {
+  const customer = req.user;
+
+  if (customer) {
+    const profile = await findCustomer({ _id: customer._id });
+
+    if (profile) {
+      const orders = await Order.find().where('_id').in(profile.orders).exec();
+      return res.status(200).json(orders);
+    }
+    return res.status(404).json({ message: 'User not found' });
+  }
+  return res.status(403).json({ message: 'Unauthorized' });
+};
 
 export const getOrderById = async (
   req: Request,
   res: Response,
   next: NextFunction
-) => {};
+) => {
+  const customer = req.user;
+
+  if (customer) {
+    const orderId = req.params.id;
+
+    if (orderId) {
+      const order = await Order.findById(orderId).populate('items.foodItem');
+      return res.status(200).json(order);
+    }
+
+    return res.status(404).json({ message: 'Please enter orderId' });
+  }
+  return res.status(403).json({ message: 'Unauthorized' });
+};
