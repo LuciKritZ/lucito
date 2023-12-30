@@ -17,7 +17,7 @@ import {
   onRequestOTP,
   validatePassword,
 } from '@/utils';
-import { Customer, FoodItem, Order } from '@/models';
+import { Customer, FoodItem, Order, Vendor } from '@/models';
 import { UserIdentifierType } from './types.controller';
 import { getRandomObjectId } from '@/utils/numbers.util';
 
@@ -415,9 +415,11 @@ export const createOrder = async (
         .in(cart.map((item) => item._id))
         .exec();
 
+      const vendorId = foodItems[0].vendorId;
+
       foodItems.forEach((foodItem) => {
         cart.forEach(({ _id, unit }) => {
-          if (foodItem._id === _id) {
+          if (String(foodItem._id) === String(_id)) {
             totalAmount += foodItem.price * unit;
             cartItems.push({ foodItem, unit });
           }
@@ -425,19 +427,28 @@ export const createOrder = async (
       });
 
       // Create order with item descriptions
-      if (cartItems) {
+      if (cartItems.length > 0) {
         const orderPlaced = await Order.create({
           orderId,
+          vendorId,
           items: cartItems,
           totalAmount,
           orderDate: new Date(),
           paymentMode: 'COD',
           paymentResponse: '',
           orderStatus: 'Waiting',
+          remarks: '',
+          deliveryId: '',
+          appliedOffers: false,
+          offerId: null,
+          readyTime: 45,
         });
 
         // Finally update orders to user account
         if (orderPlaced) {
+          // Emptying cart
+
+          profile.cart = [] as unknown as [OrderItem];
           profile.orders.push(orderPlaced);
           await profile.save();
 

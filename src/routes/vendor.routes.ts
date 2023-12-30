@@ -1,10 +1,13 @@
-import { Router, Request, Response, NextFunction } from 'express';
+import { Router } from 'express';
 
 import {
   addFoodItem,
   getFoodItems,
+  getOrderDetails,
+  getOrders,
   getVendorProfile,
   loginVendor,
+  processOrder,
   updateVendorCoverImage,
   updateVendorProfile,
   updateVendorService,
@@ -29,5 +32,10 @@ router.patch('/serviceable', updateVendorService);
 // Food Items
 router.post('/food-item', imagesMulter, addFoodItem);
 router.get('/food-items', getFoodItems);
+
+// Orders
+router.get('/orders', getOrders);
+router.put('/order/:orderId/process', processOrder);
+router.get('/order/:orderId', getOrderDetails);
 
 export { router as vendorRouter };

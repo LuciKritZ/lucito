@@ -3,18 +3,29 @@ import { Schema, Document, model } from 'mongoose';
 
 export interface OrderDocument extends Document {
   orderId: string;
+  vendorId: Schema.Types.ObjectId;
   items: OrderItem[];
   totalAmount: number;
   orderDate: Date;
   paymentMode: string;
   paymentResponse: string;
   orderStatus: string;
+  remarks: string;
+  deliveryId: string;
+  appliedOffers: boolean;
+  offerId: string;
+  preparationTime: number; // It can be maximum 60 minutes [Worst case scenario]
 }
 
 const OrderSchema = new Schema(
   {
     orderId: {
       type: String,
+    },
+    vendorId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Vendor',
+      required: true,
     },
     items: [
       {
@@ -44,6 +55,13 @@ const OrderSchema = new Schema(
     orderStatus: {
       type: String,
     },
+    remarks: {
+      type: String,
+    },
+    deliveryId: { type: String },
+    appliedOffers: { type: Boolean },
+    offerId: { type: String },
+    preparationTime: { type: Number },
   },
   {
     toJSON: {

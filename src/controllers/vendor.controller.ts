@@ -9,7 +9,7 @@ import type {
 } from '@/dto';
 import { generateSignature, validatePassword } from '@/utils';
 import { UserIdentifierType } from './types.controller';
-import { FoodItem } from '@/models';
+import { FoodItem, Order } from '@/models';
 
 export const loginVendor = async (
   req: Request,
@@ -79,6 +79,31 @@ export const updateVendorProfile = async (
 
       const savedResult = await existingVendor.save();
       return res.json(savedResult);
+    }
+  }
+
+  return res.json({ message: 'Vendor information not found.' });
+};
+
+export const updateVendorCoverImage = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const vendor = <AuthPayload>req.user;
+
+  if (vendor) {
+    const existingVendor = await findVendor({ _id: vendor._id });
+
+    if (existingVendor) {
+      const files = req.files as [Express.Multer.File];
+      const images = files.map((file: Express.Multer.File) => file.filename);
+
+      existingVendor.coverImages.push(...images);
+
+      existingVendor.save();
+
+      return res.json(existingVendor);
     }
   }
 
@@ -172,27 +197,75 @@ export const getFoodItems = async (
   return res.json({ message: 'No food items available.' });
 };
 
-export const updateVendorCoverImage = async (
+export const getOrders = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  const vendor = <AuthPayload>req.user;
+  const user = req.user;
 
-  if (vendor) {
-    const existingVendor = await findVendor({ _id: vendor._id });
+  if (user) {
+    const orders = await Order.find({ vendorId: user._id }).populate(
+      'items.foodItem'
+    );
 
-    if (existingVendor) {
-      const files = req.files as [Express.Multer.File];
-      const images = files.map((file: Express.Multer.File) => file.filename);
-
-      existingVendor.coverImages.push(...images);
-
-      existingVendor.save();
-
-      return res.json(existingVendor);
+    if (orders) {
+      return res.status(200).json(orders);
     }
+
+    return res.status(404).json({ message: 'No orders found.' });
+  }
+  return res.status(403).json({ message: 'Not authorized' });
+};
+
+export const processOrder = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { orderId } = req.params;
+  const { status, remarks, time } = req.body;
+
+  if (orderId) {
+    const order = await Order.findById(orderId).populate('items');
+
+    if (order) {
+      order.orderStatus = status;
+      order.remarks = remarks;
+
+      if (time) {
+        order.preparationTime = time;
+      }
+
+      const updatedOrder = await order.save();
+
+      if (updatedOrder) {
+        return res.status(200).json(updatedOrder);
+      }
+
+      return res.json(500).json({ message: 'Unable to update order.' });
+    }
+    return res.status(404).json({ message: 'Order ID does not exist.' });
   }
 
-  return res.json({ message: 'Vendor information not found.' });
+  return res.status(404).json({ message: 'Invalid Order ID' });
+};
+
+export const getOrderDetails = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { orderId } = req.params;
+
+  if (orderId) {
+    const order = await Order.findById(orderId).populate('items.foodItem');
+
+    if (order) {
+      return res.status(200).json(order);
+    }
+
+    return res.status(404).json({ message: 'No orders found.' });
+  }
+  return res.status(403).json({ message: 'Invalid Order Id' });
 };
