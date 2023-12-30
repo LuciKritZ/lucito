@@ -1,6 +1,9 @@
 import {
+  addItemsToCart,
   createOrder,
+  emptyCart,
   getAllOrders,
+  getCartFromItems,
   getCustomerProfile,
   getOrderById,
   logInCustomer,
@@ -18,7 +21,7 @@ const router = Router();
 router.post('/sign-up', signUpCustomer);
 router.post('/login', logInCustomer);
 
-// Protected routes
+// Protected routes start from here
 router.use(authenticate);
 
 // Verify customer account
@@ -32,6 +35,9 @@ router.get('/profile', getCustomerProfile);
 router.patch('/profile', updateCustomerProfile);
 
 // Cart
+router.post('/cart', addItemsToCart);
+router.get('/cart', getCartFromItems);
+router.delete('/cart', emptyCart);
 
 // Payment
 

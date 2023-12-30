@@ -5,6 +5,7 @@ import {
   CreateCustomerInput,
   CustomerOrderInput,
   LoginCustomerInput,
+  OrderItem,
   UpdateCustomerProfileInput,
 } from '@/dto';
 import { validate } from 'class-validator';
@@ -80,6 +81,7 @@ export const signUpCustomer = async (
     lng: 0,
     phone,
     orders: [],
+    cart: [],
   });
 
   if (customer) {
@@ -290,6 +292,101 @@ export const updateCustomerProfile = async (
   return res.status(400).json({ message: 'Please try again.' });
 };
 
+export const addItemsToCart = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const customer = req.user;
+
+  if (customer) {
+    const profile = await findCustomer({ _id: customer._id });
+
+    if (profile) {
+      const { _id, unit } = <CustomerOrderInput>req.body;
+      let cartItems = Array() as [OrderItem];
+
+      const foodItem = await FoodItem.findById(_id);
+
+      if (foodItem) {
+        cartItems = profile.cart;
+
+        let isFoodItemInCart = cartItems.findIndex(
+          (item) => String(item.foodItem) === String(_id)
+        );
+
+        if (unit > 0) {
+          if (isFoodItemInCart === -1) {
+            cartItems.push({ foodItem: _id, unit });
+          } else {
+            cartItems[isFoodItemInCart].unit = unit;
+          }
+        } else {
+          if (isFoodItemInCart !== -1) {
+            cartItems.splice(isFoodItemInCart, 1);
+          }
+        }
+
+        if (cartItems) {
+          await profile.populate('cart.foodItem');
+          profile.cart = cartItems;
+          const cartResult = await profile.save();
+
+          return res.status(200).json(cartResult.cart);
+        }
+      }
+      return res.status(404).json({ message: 'Food item not found.' });
+    }
+
+    return res.status(404).json({ message: 'User not found!' });
+  }
+  return res.status(400).json({ message: 'Unauthenticated' });
+};
+
+export const getCartFromItems = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const customer = req.user;
+
+  if (customer) {
+    const profile = await findCustomer({ _id: customer._id }).then((user) =>
+      user?.populate('cart.foodItem')
+    );
+
+    if (profile) {
+      return res.status(200).json(profile.cart);
+    }
+
+    return res.status(404).json({ message: 'User not found!' });
+  }
+  return res.status(400).json({ message: 'Unauthenticated' });
+};
+
+export const emptyCart = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const customer = req.user;
+
+  if (customer) {
+    const profile = await findCustomer({ _id: customer._id }).then((user) =>
+      user?.populate('cart.foodItem')
+    );
+
+    if (profile) {
+      profile.cart = [] as unknown as [OrderItem];
+      const deletedCart = await profile.save();
+      return res.status(200).json(deletedCart);
+    }
+
+    return res.status(404).json({ message: 'User not found!' });
+  }
+  return res.status(400).json({ message: 'Unauthenticated' });
+};
+
 export const createOrder = async (
   req: Request,
   res: Response,
@@ -320,7 +417,7 @@ export const createOrder = async (
 
       foodItems.forEach((foodItem) => {
         cart.forEach(({ _id, unit }) => {
-          if (String(foodItem._id) === _id) {
+          if (foodItem._id === _id) {
             totalAmount += foodItem.price * unit;
             cartItems.push({ foodItem, unit });
           }

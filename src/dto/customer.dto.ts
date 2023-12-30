@@ -3,6 +3,7 @@
  * In case of confusion of upper case and lower case properties imported from 'class-validator'.
  */
 
+import { FoodItemDocument } from '@/models';
 import { IsEmail, isEmpty, Length } from 'class-validator';
 import { ObjectId } from 'mongoose';
 
@@ -43,6 +44,11 @@ export interface CustomerAuthenticationPayload {
 }
 
 export interface CustomerOrderInput {
-  _id: string;
+  _id: ObjectId;
+  unit: number;
+}
+
+export interface CustomerCart {
+  foodItem: FoodItemDocument;
   unit: number;
 }

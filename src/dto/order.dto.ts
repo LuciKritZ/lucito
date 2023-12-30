@@ -1,6 +1,11 @@
+import { FoodItemDocument } from '@/models';
 import { ObjectId } from 'mongoose';
 
 export interface OrderItem {
-  foodItem: ObjectId;
+  foodItem:
+    | (FoodItemDocument & {
+        _id: ObjectId;
+      })
+    | ObjectId;
   unit: number;
 }

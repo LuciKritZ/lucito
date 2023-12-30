@@ -1,5 +1,6 @@
-import { Schema, Document, model } from 'mongoose';
+import { Schema, Document, model, SchemaType } from 'mongoose';
 import { OrderDocument } from './order.model';
+import { OrderItem } from '@/dto';
 
 interface CustomerDocument extends Document {
   email: string;
@@ -14,6 +15,7 @@ interface CustomerDocument extends Document {
   otpExpiry: Date;
   lat: number;
   long: number;
+  cart: [OrderItem];
   orders: [OrderDocument];
 }
 
@@ -58,6 +60,19 @@ const CustomerSchema = new Schema(
     },
     lat: { type: Number },
     long: { type: Number },
+    cart: [
+      {
+        foodItem: {
+          type: Schema.Types.ObjectId,
+          ref: 'FoodItem',
+          required: true,
+        },
+        unit: {
+          type: Number,
+          required: true,
+        },
+      },
+    ],
     orders: [
       {
         type: Schema.Types.ObjectId,
