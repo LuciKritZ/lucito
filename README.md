@@ -39,4 +39,4 @@ The application currently has 6 environment variables:
 ## Deployments:
 
 1. [Postman Workspace](https://www.postman.com/lucikritz/workspace/lucito/overview)
-2. [Backend](https://lucito-lively-grass-7939.fly.dev/)
+2. [Link](https://lucito-lively-grass-7939.fly.dev/)
